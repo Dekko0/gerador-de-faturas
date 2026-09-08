@@ -1,0 +1,110 @@
+{
+  "_comentario": "Dados FIXOS (iguais em todas as versões) + tarifas + um bloco por cenário. Valores monetários são calculados por gerar_fatura.py a partir das quantidades e tarifas (sem tributos). PIS/COFINS variam por mês como na fatura real.",
+
+  "fixos": {
+    "TITULAR": "CLIENTE TESTE CYPRESS LTDA",
+    "TITULAR_LINHA2": "",
+    "CNPJ": "35.343.832/0001-08",
+    "ENDERECO_LINHA1": "RUA DOS TESTES, 100",
+    "ENDERECO_LINHA2": "",
+    "ENDERECO_LINHA3": "BAIRRO FICTICIO/SALVADOR",
+    "ENDERECO_LINHA4": "41610-160 SALVADOR BA",
+    "CODIGO_INSTALACAO": "INST01",
+    "CODIGO_CLIENTE": "TESTE-0001",
+    "CLASSE": "PODER PUBLICO -- MUNICIPAL",
+    "TIPO_FORNECIMENTO": "Trifásico",
+    "MEDIDOR": "9900000001",
+    "CONTA_CONTRATO_COLETIVA": "7600009999",
+    "BANCO": "BANCO FICTICIO"
+  },
+
+  "tarifas": {
+    "_comentario": "R$ sem tributos (coluna TARIFA UNIT). Grupo A copiado da fatura de referência (A4 Verde, fev/2026); demanda ponta Azul e grupo B são estimativas plausíveis.",
+    "grupo_a": {
+      "demanda_verde": 38.61,
+      "demanda_azul_ponta": 62.50,
+      "demanda_azul_fora_ponta": 38.61,
+      "tusd_ponta_verde": 2.67604,
+      "tusd_ponta_azul": 0.10142,
+      "tusd_fora_ponta": 0.10142,
+      "te_ponta": 0.42776,
+      "te_fora_ponta": 0.26248,
+      "reativo_excedente": 0.27724
+    },
+    "grupo_b": {
+      "tusd": 0.43112,
+      "te": 0.29610
+    }
+  },
+
+  "leituras_iniciais_padrao": {
+    "ea": 53210,
+    "ea_p": 41250,
+    "ea_fp": 2980,
+    "reat_p": 21500,
+    "reat_fp": 3410,
+    "reatexc_p": 5120,
+    "reatexc_fp": 640
+  },
+
+  "cenarios": [
+    {
+      "arquivo": "uch-base-convencional",
+      "modalidade": "CONVENCIONAL",
+      "mes_referencia": "05/2026",
+      "pis": 1.03,
+      "cofins": 4.77,
+      "consumo_kwh": 9840
+    },
+    {
+      "arquivo": "uch10-mudanca-verde-105kw",
+      "modalidade": "VERDE",
+      "mes_referencia": "06/2026",
+      "pis": 1.05,
+      "cofins": 4.84,
+      "demanda_contratada_kw": 105,
+      "demanda_medida_ponta_kw": 76.8,
+      "demanda_medida_fora_ponta_kw": 98.4,
+      "consumo_ponta_kwh": 2412,
+      "consumo_fora_ponta_kwh": 26880,
+      "reativo_ponta_kvarh": 1404,
+      "reativo_fora_ponta_kvarh": 12720,
+      "reativo_exc_ponta_kvarh": 210.6,
+      "reativo_exc_fora_ponta_kvarh": 1560
+    },
+    {
+      "arquivo": "uch09-mudanca-azul-ponta-forponta",
+      "modalidade": "AZUL",
+      "mes_referencia": "07/2026",
+      "pis": 0.98,
+      "cofins": 4.52,
+      "demanda_contratada_ponta_kw": 80,
+      "demanda_contratada_fora_ponta_kw": 120,
+      "demanda_medida_ponta_kw": 74.4,
+      "demanda_medida_fora_ponta_kw": 115.2,
+      "consumo_ponta_kwh": 3024,
+      "consumo_fora_ponta_kwh": 31560,
+      "reativo_ponta_kvarh": 1620,
+      "reativo_fora_ponta_kvarh": 14400,
+      "reativo_exc_ponta_kvarh": 252,
+      "reativo_exc_fora_ponta_kvarh": 1740
+    },
+    {
+      "arquivo": "uch02-mudanca-demanda-145-para-105",
+      "_comentario": "Seed com 145 kW; a fatura mostra a nova demanda (105 kW). Troque demanda_contratada_kw para 145 se quiser a versão anterior.",
+      "modalidade": "VERDE",
+      "mes_referencia": "08/2026",
+      "pis": 1.10,
+      "cofins": 5.07,
+      "demanda_contratada_kw": 105,
+      "demanda_medida_ponta_kw": 69.6,
+      "demanda_medida_fora_ponta_kw": 96.0,
+      "consumo_ponta_kwh": 2196,
+      "consumo_fora_ponta_kwh": 24300,
+      "reativo_ponta_kvarh": 1260,
+      "reativo_fora_ponta_kvarh": 11400,
+      "reativo_exc_ponta_kvarh": 180,
+      "reativo_exc_fora_ponta_kvarh": 1320
+    }
+  ]
+}

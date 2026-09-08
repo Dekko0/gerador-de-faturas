@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fatura fictícia — DISTRIBUIDORA DE ENERGIA BAHIA (template de testes OCR, UCH)</title>
+<!--
+  TEMPLATE DE FATURA FICTÍCIA (DANFE NF3e, 3 páginas, distribuidora fictícia)
+  ----------------------------------------------------------------------
+  * Coordenadas em pt (1/72 pol.) medidas na fatura real com pdfplumber
+    (origem no canto superior esquerdo, página A4 = 595,28 x 841,89 pt).
+  * Fonte: Arial/Helvetica (Liberation Sans no Linux) nos mesmos tamanhos
+    da fatura original (4 a 13 pt).
+  * Placeholders: {{ NOME }} (duplas chaves, sem espaços) -> substituídos por gerar_fatura.py
+  * Seções condicionais (mesma sintaxe do Mustache, dentro de comentários HTML):
+      <!-- {{#VERDE}} --> ... <!-- {{/VERDE}} -->          só na modalidade Verde
+      <!-- {{#AZUL}} --> ... <!-- {{/AZUL}} -->            só na modalidade Azul
+      <!-- {{#CONVENCIONAL}} --> ... <!-- {{/CONVENCIONAL}} -->  só Convencional (grupo B)
+      <!-- {{#GRUPO_A}} --> ... <!-- {{/GRUPO_A}} -->      Verde ou Azul
+  * Gerar o PDF: python3 gerar_fatura.py  (WeasyPrint)  ou  imprimir em PDF
+    no Chrome/Edge com margens "Nenhuma" e escala 100 %.
+-->
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; color: #000;
+    font-family: Arial, Helvetica, "Liberation Sans", sans-serif; }
+  .page { position: relative; width: 595.28pt; height: 841.89pt; overflow: hidden;
+    page-break-after: always; break-after: page; }
+  .page.last { page-break-after: auto; break-after: auto; }
+
+  /* texto posicionado */
+  .t { position: absolute; white-space: nowrap; line-height: 1; }
+  .c { text-align: center; }
+  .r { text-align: right; }
+  .b { font-weight: bold; }
+  .s4 { font-size: 4pt; } .s5 { font-size: 5pt; } .s6 { font-size: 6pt; }
+  .s7 { font-size: 7pt; } .s8 { font-size: 8pt; } .s9 { font-size: 9pt; }
+  .s10 { font-size: 10pt; } .s12 { font-size: 12pt; } .s13 { font-size: 13pt; }
+
+  /* caixas e linhas */
+  .box { position: absolute; border: 0.5pt solid #000; }
+  .hr  { position: absolute; height: 0; border-top: 0.5pt solid #000; }
+  .vl  { position: absolute; width: 0; border-left: 0.5pt solid #000; }
+
+  /* tabelas de linhas (sem bordas próprias — as linhas são desenhadas com .box/.vl/.hr) */
+  table.g { position: absolute; border-collapse: collapse; table-layout: fixed; }
+  table.g td { padding: 0; font-weight: normal; vertical-align: top; height: 8.5pt;
+    white-space: nowrap; overflow: hidden; line-height: 8.5pt; }
+  table.g tr { height: 8.5pt; }
+  /* células de 5 pt dentro de tabela de 6 pt: mesma linha de base, sem crescer a linha */
+  table.g td.s5 { line-height: 7.5pt; padding-top: 1pt; }
+
+  /* bloco de cliente (fluxo, para linhas vazias colapsarem) */
+  .cli { position: absolute; left: 17.5pt; white-space: nowrap; }
+  .cli .n  { font-size: 7pt; line-height: 7pt; }
+  .cli .cn { font-size: 6pt; line-height: 8pt; }
+  .cli .lb { font-size: 5pt; line-height: 8pt; font-weight: bold; }
+  .cli .e  { font-size: 6pt; line-height: 7pt; }
+
+  /* cabeçalhos de coluna com duas linhas */
+  .th { position: absolute; font-size: 5pt; line-height: 8.5pt; text-align: center; white-space: nowrap; }
+
+  svg { position: absolute; }
+</style>
+</head>
+<body>
+
+<!-- ============================ PÁGINA 1 / 2 ============================ -->
+<div class="page">
+
+  <!-- Cabeçalho da distribuidora -->
+  <div class="t s9 b" style="left:20pt;top:6pt">DISTRIBUIDORA DE ENERGIA</div>
+  <div class="t s9 b" style="left:20pt;top:18pt">BAHIA</div>
+  <div class="t s6 b" style="left:19.9pt;top:41pt">www.deb-energia.com.br|Ligue grátis 0800 116</div>
+  <div class="t s8 b" style="left:162.1pt;top:2.5pt">DANFE - DOCUMENTO AUXILIAR DA NOTA FISCAL DE ENERGIA ELÉTRICA ELETRÔNICA</div>
+  <div class="t s6" style="left:554.9pt;top:10pt">1 /<!-- {{#MEDICAO}} -->2<!-- {{/MEDICAO}} --><!-- {{^MEDICAO}} -->1<!-- {{/MEDICAO}} --></div>
+  <div class="t s7" style="left:162.1pt;top:20pt">COMPANHIA DE ELETRICIDADE DO ESTADO DA BAHIA</div>
+  <div class="t s7" style="left:162.1pt;top:28.5pt">AV.EDGARD SANTOS, 300, CABULA VI, SALVADOR, BAHIA CEP 41181-900</div>
+  <div class="t s7" style="left:162.1pt;top:37pt">CNPJ 15.139.629/0001-94 | INSCRIÇÃO ESTADUAL 00478696</div>
+  <div class="hr" style="left:14.2pt;top:70.9pt;width:566.9pt"></div>
+
+  <!-- Cliente -->
+  <div class="t s5 b" style="left:17.5pt;top:74pt">NOME DO CLIENTE:</div>
+  <div class="cli" style="top:79.5pt">
+    <div class="n">{{TITULAR}}</div>
+    <div class="n">{{TITULAR_LINHA2}}</div>
+    <div class="cn">CNPJ: {{CNPJ}}</div>
+    <div class="lb">ENDEREÇO:</div>
+    <div class="e">{{ENDERECO_LINHA1}}</div>
+    <div class="e">{{ENDERECO_LINHA2}}</div>
+    <div class="e">{{ENDERECO_LINHA3}}</div>
+    <div class="e">{{ENDERECO_LINHA4}}</div>
+  </div>
+
+  <!-- Código da instalação / código do cliente -->
+  <div class="box" style="left:212.6pt;top:76.7pt;width:79.4pt;height:25.4pt"></div>
+  <div class="t s4 c" style="left:212.6pt;top:82pt;width:79.4pt">CÓDIGO DA INSTALAÇÃO</div>
+  <div class="t s10 b c" style="left:212.6pt;top:88.5pt;width:79.4pt">{{CODIGO_INSTALACAO}}</div>
+  <div class="box" style="left:212.6pt;top:105pt;width:79.4pt;height:25.5pt"></div>
+  <div class="t s4 c" style="left:212.6pt;top:110.5pt;width:79.4pt">CÓDIGO DO CLIENTE</div>
+  <div class="t s10 b c" style="left:212.6pt;top:117pt;width:79.4pt">{{CODIGO_CLIENTE}}</div>
+
+  <!-- Dados da NF3e -->
+  <div class="t s5" style="left:386pt;top:89.5pt">NOTA FISCAL N°</div>
+  <div class="t s6" style="left:428.9pt;top:89pt">{{NF_NUMERO}}</div>
+  <div class="t s5" style="left:462.4pt;top:89.5pt">- SÉRIE {{NF_SERIE}} / DATA DE EMISSÃO: {{NF_EMISSAO}}</div>
+  <div class="t s5" style="left:386pt;top:98pt">Consulte pela Chave de Acesso em:</div>
+  <div class="t s5" style="left:386pt;top:106.5pt">https://consulta-nf3e.deb-energia.com.br</div>
+  <div class="t s5" style="left:386pt;top:115pt">chave de acesso:</div>
+  <div class="t s5" style="left:386pt;top:123.5pt">{{NF_CHAVE}}</div>
+  <div class="t s5" style="left:386pt;top:132pt">Protocolo de autorização: {{NF_PROTOCOLO}} - {{NF_PROTOCOLO_DATAHORA}}</div>
+
+  <!-- Referência / total / vencimento -->
+  <div class="box" style="left:14.2pt;top:136.1pt;width:70.8pt;height:19.9pt"></div>
+  <div class="box" style="left:85pt;top:136.1pt;width:124.8pt;height:19.9pt"></div>
+  <div class="box" style="left:209.8pt;top:136.1pt;width:82.2pt;height:19.9pt"></div>
+  <div class="t s6 c" style="left:14.2pt;top:137pt;width:70.8pt">REF:MÊS/ANO</div>
+  <div class="t s13 b c" style="left:14.2pt;top:143pt;width:70.8pt">{{MES_REFERENCIA}}</div>
+  <div class="t s6 c" style="left:85pt;top:137pt;width:124.8pt">TOTAL A PAGAR R$</div>
+  <div class="t s13 b" style="left:125.7pt;top:143pt">{{VALOR_TOTAL}}</div>
+  <div class="t s6 c" style="left:209.8pt;top:137pt;width:82.2pt">VENCIMENTO</div>
+  <div class="t s13 b c" style="left:209.8pt;top:143pt;width:82.2pt">{{VENCIMENTO}}</div>
+
+  <!-- Classificação / tipo de fornecimento -->
+  <div class="box" style="left:14.2pt;top:158.8pt;width:340.1pt;height:14.2pt"></div>
+  <div class="t s6" style="left:15.5pt;top:159.5pt">CLASSIFICAÇÃO:</div>
+  <div class="t s6 b" style="left:68.5pt;top:159.5pt">{{SUBGRUPO}} {{MODALIDADE}}</div>
+  <div class="t s6 b" style="left:15.5pt;top:165.5pt">{{CLASSE}}</div>
+  <div class="box" style="left:368.5pt;top:158.8pt;width:212.6pt;height:14.2pt"></div>
+  <div class="t s6" style="left:371.8pt;top:162.5pt">TIPO DE FORNECIMENTO:</div>
+  <div class="t s6 b" style="left:451.1pt;top:162.5pt">{{TIPO_FORNECIMENTO}}</div>
+
+  <!-- Mensagem -->
+  <div class="box" style="left:14.2pt;top:175.8pt;width:566.9pt;height:36.9pt"></div>
+  <div class="t s6" style="left:28.3pt;top:179.5pt">Cadastra-se e receba a sua fatura por e-mail, utilizando o QR code no verso da fatura.</div>
+
+  <!-- Datas de leituras -->
+  <div class="box" style="left:14.2pt;top:215.5pt;width:113.4pt;height:14.2pt"></div>
+  <div class="box" style="left:127.6pt;top:215.5pt;width:113.4pt;height:14.2pt"></div>
+  <div class="box" style="left:241pt;top:215.5pt;width:113.4pt;height:14.2pt"></div>
+  <div class="box" style="left:354.4pt;top:215.5pt;width:113.4pt;height:14.2pt"></div>
+  <div class="box" style="left:467.7pt;top:215.5pt;width:113.4pt;height:14.2pt"></div>
+  <div class="t s6 c" style="left:14.2pt;top:219.5pt;width:113.4pt">DATAS DE LEITURAS</div>
+  <div class="t s8 c" style="left:127.6pt;top:217.5pt;width:113.4pt"><span class="s6">LEITURA ANTERIOR</span><span class="b" style="margin-left:3pt">{{LEITURA_ANTERIOR}}</span></div>
+  <div class="t s8 c" style="left:241pt;top:217.5pt;width:113.4pt"><span class="s6">LEITURA ATUAL</span><span class="b" style="margin-left:3pt">{{LEITURA_ATUAL}}</span></div>
+  <div class="t s8 c" style="left:354.4pt;top:217.5pt;width:113.4pt"><span class="s6">N° DE DIAS</span><span class="b" style="margin-left:5pt">{{NUM_DIAS}}</span></div>
+  <div class="t s8 c" style="left:467.7pt;top:217.5pt;width:113.4pt"><span class="s6">PRÓXIMA LEITURA</span><span class="b" style="margin-left:3pt">{{PROXIMA_LEITURA}}</span></div>
+
+  <!-- ===== Itens da fatura ===== -->
+  <div class="box" style="left:14.2pt;top:232.6pt;width:436.5pt;height:221.1pt"></div>
+  <div class="hr" style="left:14.2pt;top:252.4pt;width:436.5pt"></div>
+  <div class="hr" style="left:14.2pt;top:442.3pt;width:436.5pt"></div>
+  <div class="vl" style="left:95pt;top:232.6pt;height:221.1pt"></div>
+  <div class="vl" style="left:112.3pt;top:232.6pt;height:221.1pt"></div>
+  <div class="vl" style="left:161.5pt;top:232.6pt;height:221.1pt"></div>
+  <div class="vl" style="left:204.1pt;top:232.6pt;height:221.1pt"></div>
+  <div class="vl" style="left:259.1pt;top:232.6pt;height:221.1pt"></div>
+  <div class="vl" style="left:303.3pt;top:232.6pt;height:221.1pt"></div>
+  <div class="vl" style="left:347.8pt;top:232.6pt;height:221.1pt"></div>
+  <div class="vl" style="left:374.5pt;top:232.6pt;height:221.1pt"></div>
+  <div class="vl" style="left:418.1pt;top:232.6pt;height:221.1pt"></div>
+  <div class="th" style="left:14.2pt;top:235.5pt;width:80.8pt;text-align:left;padding-left:3.3pt">ITENS DA FATURA</div>
+  <div class="th" style="left:95pt;top:235.5pt;width:17.3pt">UNID.</div>
+  <div class="th" style="left:112.3pt;top:235.5pt;width:49.2pt">QUANT.</div>
+  <div class="th" style="left:161.5pt;top:235.5pt;width:42.6pt">PREÇO UNIT.<br>COM TRIB.(R$)</div>
+  <div class="th" style="left:204.1pt;top:235.5pt;width:55pt">VALOR<br>(R$)</div>
+  <div class="th" style="left:259.1pt;top:235.5pt;width:44.2pt">PIS/<br>COFINS(R$)</div>
+  <div class="th" style="left:303.3pt;top:235.5pt;width:44.5pt">BASE CALC.<br>ICMS(R$)</div>
+  <div class="th" style="left:347.8pt;top:235.5pt;width:26.7pt">ALÍQUOTA<br>ICMS(%)</div>
+  <div class="th" style="left:374.5pt;top:235.5pt;width:43.6pt">ICMS (R$)</div>
+  <div class="th" style="left:418.1pt;top:235.5pt;width:32.6pt">TARIFA<br>UNIT(R$)</div>
+
+  <table class="g s6" style="left:14.2pt;top:255.1pt;width:436.5pt">
+    <colgroup>
+      <col style="width:80.8pt"><col style="width:17.3pt"><col style="width:49.2pt"><col style="width:42.6pt">
+      <col style="width:55pt"><col style="width:44.2pt"><col style="width:44.5pt"><col style="width:26.7pt">
+      <col style="width:43.6pt"><col style="width:32.6pt">
+    </colgroup>
+    <tbody>
+    <!-- {{#VERDE}} -->
+    <tr><td style="padding-left:0.3pt">Demanda Ativa</td><td class="s5 c">kW</td><td class="r" style="padding-right:1.3pt">{{DEM_QTD}}</td><td class="r" style="padding-right:1.7pt">{{DEM_PRECO}}</td><td class="r" style="padding-right:4pt">{{DEM_VALOR}}</td><td class="s5 r" style="padding-right:1.7pt">{{DEM_PISCOF}}</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{DEM_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">Demanda Reativa Exc.</td><td class="s5 c">kVAr</td><td class="r" style="padding-right:1.3pt">0,00</td><td class="r" style="padding-right:1.7pt">{{DEM_PRECO}}</td><td class="r" style="padding-right:4pt">0,00</td><td class="s5 r" style="padding-right:1.7pt">0,00</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{DEM_TARIFA}}</td></tr>
+    <!-- {{/VERDE}} -->
+    <!-- {{#AZUL}} -->
+    <tr><td style="padding-left:0.3pt">Demanda Ativa NPonta</td><td class="s5 c">kW</td><td class="r" style="padding-right:1.3pt">{{DEM_P_QTD}}</td><td class="r" style="padding-right:1.7pt">{{DEM_P_PRECO}}</td><td class="r" style="padding-right:4pt">{{DEM_P_VALOR}}</td><td class="s5 r" style="padding-right:1.7pt">{{DEM_P_PISCOF}}</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{DEM_P_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">Demanda Ativa FPonta</td><td class="s5 c">kW</td><td class="r" style="padding-right:1.3pt">{{DEM_FP_QTD}}</td><td class="r" style="padding-right:1.7pt">{{DEM_FP_PRECO}}</td><td class="r" style="padding-right:4pt">{{DEM_FP_VALOR}}</td><td class="s5 r" style="padding-right:1.7pt">{{DEM_FP_PISCOF}}</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{DEM_FP_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">Dem.Reat.Exc. NPonta</td><td class="s5 c">kVAr</td><td class="r" style="padding-right:1.3pt">0,00</td><td class="r" style="padding-right:1.7pt">{{DEM_FP_PRECO}}</td><td class="r" style="padding-right:4pt">0,00</td><td class="s5 r" style="padding-right:1.7pt">0,00</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{DEM_FP_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">Dem. Reativa Exc. FP</td><td class="s5 c">kVAr</td><td class="r" style="padding-right:1.3pt">0,00</td><td class="r" style="padding-right:1.7pt">{{DEM_FP_PRECO}}</td><td class="r" style="padding-right:4pt">0,00</td><td class="s5 r" style="padding-right:1.7pt">0,00</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{DEM_FP_TARIFA}}</td></tr>
+    <!-- {{/AZUL}} -->
+    <!-- {{#GRUPO_A}} -->
+    <tr><td style="padding-left:0.3pt">Consumo-TUSD NPonta</td><td class="s5 c">kWh</td><td class="r" style="padding-right:1.3pt">{{CONS_P_QTD}}</td><td class="r" style="padding-right:1.7pt">{{TUSD_P_PRECO}}</td><td class="r" style="padding-right:4pt">{{TUSD_P_VALOR}}</td><td class="s5 r" style="padding-right:1.7pt">{{TUSD_P_PISCOF}}</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{TUSD_P_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">Consumo-TUSD F.Ponta</td><td class="s5 c">kWh</td><td class="r" style="padding-right:1.3pt">{{CONS_FP_QTD}}</td><td class="r" style="padding-right:1.7pt">{{TUSD_FP_PRECO}}</td><td class="r" style="padding-right:4pt">{{TUSD_FP_VALOR}}</td><td class="s5 r" style="padding-right:1.7pt">{{TUSD_FP_PISCOF}}</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{TUSD_FP_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">BANDEIRA {{BANDEIRA}}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td style="padding-left:0.3pt">Consumo-TE Na Ponta</td><td class="s5 c">kWh</td><td class="r" style="padding-right:1.3pt">{{CONS_P_QTD}}</td><td class="r" style="padding-right:1.7pt">{{TE_P_PRECO}}</td><td class="r" style="padding-right:4pt">{{TE_P_VALOR}}</td><td class="s5 r" style="padding-right:1.7pt">{{TE_P_PISCOF}}</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{TE_P_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">Consumo-TE F.Ponta</td><td class="s5 c">kWh</td><td class="r" style="padding-right:1.3pt">{{CONS_FP_QTD}}</td><td class="r" style="padding-right:1.7pt">{{TE_FP_PRECO}}</td><td class="r" style="padding-right:4pt">{{TE_FP_VALOR}}</td><td class="s5 r" style="padding-right:1.7pt">{{TE_FP_PISCOF}}</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{TE_FP_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">Cons.Reat.Exc.NPonta</td><td class="s5 c">kVARh</td><td class="r" style="padding-right:1.3pt">{{REAT_P_QTD}}</td><td class="r" style="padding-right:1.7pt">{{REAT_PRECO}}</td><td class="r" style="padding-right:4pt">{{REAT_P_VALOR}}</td><td class="s5 r" style="padding-right:1.7pt">{{REAT_P_PISCOF}}</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{REAT_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">Cons.Reat Exc.FPonta</td><td class="s5 c">kVARh</td><td class="r" style="padding-right:1.3pt">{{REAT_FP_QTD}}</td><td class="r" style="padding-right:1.7pt">{{REAT_PRECO}}</td><td class="r" style="padding-right:4pt">{{REAT_FP_VALOR}}</td><td class="s5 r" style="padding-right:1.7pt">{{REAT_FP_PISCOF}}</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{REAT_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">TRIBF-IRRF(1.2%)</td><td></td><td></td><td></td><td class="r" style="padding-right:2pt">{{IRRF_12}}-</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td style="padding-left:0.3pt">TRIBF-IRRF(4.8%)</td><td></td><td></td><td></td><td class="r" style="padding-right:2pt">{{IRRF_48}}-</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <!-- {{/GRUPO_A}} -->
+    <!-- {{#CONVENCIONAL}} -->
+    <tr><td style="padding-left:0.3pt">Consumo-TUSD</td><td class="s5 c">kWh</td><td class="r" style="padding-right:1.3pt">{{CONS_QTD}}</td><td class="r" style="padding-right:1.7pt">{{TUSD_PRECO}}</td><td class="r" style="padding-right:4pt">{{TUSD_VALOR}}</td><td class="s5 r" style="padding-right:1.7pt">{{TUSD_PISCOF}}</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{TUSD_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">BANDEIRA {{BANDEIRA}}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td style="padding-left:0.3pt">Consumo-TE</td><td class="s5 c">kWh</td><td class="r" style="padding-right:1.3pt">{{CONS_QTD}}</td><td class="r" style="padding-right:1.7pt">{{TE_PRECO}}</td><td class="r" style="padding-right:4pt">{{TE_VALOR}}</td><td class="s5 r" style="padding-right:1.7pt">{{TE_PISCOF}}</td><td class="s5 r" style="padding-right:2pt">0,00</td><td class="s5 r" style="padding-right:3.3pt">{{ALIQ_ICMS}}</td><td class="s5 r" style="padding-right:1.4pt">0,00</td><td class="s5 r" style="padding-right:0.5pt">{{TE_TARIFA}}</td></tr>
+    <tr><td style="padding-left:0.3pt">TRIBF-IRRF(1.2%)</td><td></td><td></td><td></td><td class="r" style="padding-right:2pt">{{IRRF_12}}-</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <!-- {{/CONVENCIONAL}} -->
+    </tbody>
+  </table>
+  <div class="t s6" style="left:14.5pt;top:446pt">TOTAL</div>
+  <div class="t s6 r" style="left:204.1pt;top:446pt;width:51pt">{{VALOR_TOTAL}}</div>
+
+  <!-- ===== Tributos ===== -->
+  <div class="box" style="left:453.5pt;top:232.5pt;width:127.6pt;height:68.1pt"></div>
+  <div class="hr" style="left:453.5pt;top:252.4pt;width:127.6pt"></div>
+  <div class="vl" style="left:476.2pt;top:232.5pt;height:68.1pt"></div>
+  <div class="vl" style="left:515.9pt;top:232.5pt;height:68.1pt"></div>
+  <div class="vl" style="left:541.4pt;top:232.5pt;height:68.1pt"></div>
+  <div class="th" style="left:453.5pt;top:235.5pt;width:22.7pt">TRIBUTO</div>
+  <div class="th" style="left:476.2pt;top:235.5pt;width:39.7pt">BASE DE<br>CÁLCULO (R$)</div>
+  <div class="th" style="left:515.9pt;top:235.5pt;width:25.5pt">ALÍQUOTA<br>(%)</div>
+  <div class="th" style="left:541.4pt;top:235.5pt;width:39.7pt">VALOR (R$)</div>
+  <table class="g s5" style="left:453.5pt;top:252.5pt;width:127.6pt">
+    <colgroup><col style="width:22.7pt"><col style="width:39.7pt"><col style="width:25.5pt"><col style="width:39.7pt"></colgroup>
+    <tbody>
+    <tr><td style="padding-left:3.4pt">PIS</td><td class="r" style="padding-right:1.7pt">{{BASE_PISCOF}}</td><td class="r" style="padding-right:1.6pt">{{ALIQ_PIS}}</td><td class="r" style="padding-right:1.7pt">{{VALOR_PIS}}</td></tr>
+    <tr><td style="padding-left:3.4pt">COFINS</td><td class="r" style="padding-right:1.7pt">{{BASE_PISCOF}}</td><td class="r" style="padding-right:1.6pt">{{ALIQ_COFINS}}</td><td class="r" style="padding-right:1.7pt">{{VALOR_COFINS}}</td></tr>
+    <tr><td style="padding-left:3.4pt">ICMS</td><td class="r" style="padding-right:1.7pt">{{BASE_ICMS}}</td><td class="r" style="padding-right:1.6pt">{{ALIQ_ICMS}}</td><td class="r" style="padding-right:1.7pt">{{VALOR_ICMS}}</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ===== Grandezas contratadas ===== -->
+  <div class="box" style="left:453.5pt;top:303.4pt;width:127.6pt;height:150.3pt"></div>
+  <div class="t s5 b c" style="left:453.5pt;top:308pt;width:127.6pt">GRANDEZAS CONTRATADAS</div>
+  <div class="hr" style="left:453.5pt;top:314.8pt;width:127.6pt"></div>
+  <table class="g s6" style="left:453.5pt;top:314.6pt;width:127.6pt">
+    <colgroup><col style="width:98pt"><col style="width:29.6pt"></colgroup>
+    <tbody>
+    <!-- {{#VERDE}} -->
+    <tr><td style="padding-left:1.4pt">Demanda Contratada</td><td class="r" style="padding-right:14.2pt">{{DEMANDA_KW}}</td></tr>
+    <!-- {{/VERDE}} -->
+    <!-- {{#AZUL}} -->
+    <tr><td style="padding-left:1.4pt">Demanda Contratada NP</td><td class="r" style="padding-right:14.2pt">{{DEMANDA_PONTA_KW}}</td></tr>
+    <tr><td style="padding-left:1.4pt">Demanda Contratada FP</td><td class="r" style="padding-right:14.2pt">{{DEMANDA_FORA_PONTA_KW}}</td></tr>
+    <!-- {{/AZUL}} -->
+    </tbody>
+  </table>
+
+  <!-- ===== Medidor ===== -->
+  <div class="box" style="left:14.2pt;top:456.5pt;width:325.9pt;height:56.7pt"></div>
+  <div class="hr" style="left:14.2pt;top:476.4pt;width:325.9pt"></div>
+  <div class="vl" style="left:48.1pt;top:456.5pt;height:56.7pt"></div>
+  <div class="vl" style="left:119pt;top:456.5pt;height:56.7pt"></div>
+  <div class="vl" style="left:161.5pt;top:456.5pt;height:56.7pt"></div>
+  <div class="vl" style="left:204.1pt;top:456.5pt;height:56.7pt"></div>
+  <div class="vl" style="left:246.6pt;top:456.5pt;height:56.7pt"></div>
+  <div class="vl" style="left:292pt;top:456.5pt;height:56.7pt"></div>
+  <div class="th" style="left:14.2pt;top:459.5pt;width:33.9pt">MEDIDOR</div>
+  <div class="th" style="left:48.1pt;top:459.5pt;width:70.9pt">GRANDEZAS</div>
+  <div class="th" style="left:119pt;top:459.5pt;width:42.5pt">POSTOS<br>HORÁRIOS</div>
+  <div class="th" style="left:161.5pt;top:459.5pt;width:42.6pt">LEITURA<br>ANTERIOR</div>
+  <div class="th" style="left:204.1pt;top:459.5pt;width:42.5pt">LEITURA<br>ATUAL</div>
+  <div class="th" style="left:246.6pt;top:459.5pt;width:45.4pt">CONST.<br>MEDIDOR</div>
+  <div class="th" style="left:292pt;top:459.5pt;width:48.1pt">CONSUMO<br>kWh</div>
+  <table class="g s5" style="left:14.2pt;top:476.5pt;width:325.9pt">
+    <colgroup><col style="width:33.9pt"><col style="width:70.9pt"><col style="width:42.5pt"><col style="width:42.6pt"><col style="width:42.5pt"><col style="width:45.4pt"><col style="width:48.1pt"></colgroup>
+    <tbody>
+    <!-- {{#GRUPO_A}} -->
+    <tr><td style="padding-left:3.3pt">{{MEDIDOR}}</td><td class="c" style="padding-right:33.9pt">Energia Ativa</td><td style="padding-left:6.5pt">Ponta</td><td class="r" style="padding-right:2.5pt">{{LEIT_ANT_EA_P}}</td><td class="r" style="padding-right:2.4pt">{{LEIT_ATU_EA_P}}</td><td class="r" style="padding-right:4.8pt">{{CONST_EA_P}}</td><td class="r" style="padding-right:1.7pt">{{CONS_P_QTD}}</td></tr>
+    <tr><td style="padding-left:3.3pt">{{MEDIDOR}}</td><td class="c" style="padding-right:33.9pt">Energia Ativa</td><td style="padding-left:6.5pt">Fora Ponta</td><td class="r" style="padding-right:2.5pt">{{LEIT_ANT_EA_FP}}</td><td class="r" style="padding-right:2.4pt">{{LEIT_ATU_EA_FP}}</td><td class="r" style="padding-right:4.8pt">{{CONST_EA_FP}}</td><td class="r" style="padding-right:1.7pt">{{CONS_FP_QTD}}</td></tr>
+    <tr><td style="padding-left:3.3pt">{{MEDIDOR}}</td><td class="c" style="padding-right:33.9pt">Demanda Ativa</td><td style="padding-left:6.5pt">Ponta</td><td class="r" style="padding-right:2.5pt">0,00</td><td class="r" style="padding-right:2.4pt">{{LEIT_ATU_DEM_P}}</td><td class="r" style="padding-right:4.8pt">{{CONST_DEM}}</td><td class="r" style="padding-right:1.7pt">{{DEM_MED_P}}</td></tr>
+    <tr><td style="padding-left:3.3pt">{{MEDIDOR}}</td><td class="c" style="padding-right:33.9pt">Demanda Ativa</td><td style="padding-left:6.5pt">Fora Ponta</td><td class="r" style="padding-right:2.5pt">0,00</td><td class="r" style="padding-right:2.4pt">{{LEIT_ATU_DEM_FP}}</td><td class="r" style="padding-right:4.8pt">{{CONST_DEM}}</td><td class="r" style="padding-right:1.7pt">{{DEM_MED_FP}}</td></tr>
+    <!-- {{/GRUPO_A}} -->
+    <!-- {{#CONVENCIONAL}} -->
+    <tr><td style="padding-left:3.3pt">{{MEDIDOR}}</td><td class="c" style="padding-right:33.9pt">Energia Ativa</td><td></td><td class="r" style="padding-right:2.5pt">{{LEIT_ANT_EA}}</td><td class="r" style="padding-right:2.4pt">{{LEIT_ATU_EA}}</td><td class="r" style="padding-right:4.8pt">{{CONST_EA}}</td><td class="r" style="padding-right:1.7pt">{{CONS_QTD}}</td></tr>
+    <!-- {{/CONVENCIONAL}} -->
+    </tbody>
+  </table>
+
+  <!-- Reservado ao fisco -->
+  <div class="box" style="left:343pt;top:456.5pt;width:238.1pt;height:56.7pt"></div>
+  <div class="t s6 b c" style="left:343pt;top:460pt;width:238.1pt">RESERVADO AO FISCO</div>
+  <div class="hr" style="left:343pt;top:467.8pt;width:238.1pt"></div>
+
+  <!-- Quadros de mensagens (vazios na fatura original) -->
+  <div class="box" style="left:14.2pt;top:516pt;width:411.3pt;height:85pt"></div>
+  <div class="box" style="left:428pt;top:516pt;width:153.1pt;height:85pt"></div>
+
+  <!-- Informações importantes -->
+  <div class="box" style="left:14.2pt;top:603.9pt;width:566.9pt;height:70.9pt"></div>
+  <div class="t s6 b" style="left:17pt;top:607.5pt">INFORMAÇÕES IMPORTANTES</div>
+  <div class="t s6" style="left:17pt;top:613.5pt">Na data da leitura a bandeira em vigor é a {{BANDEIRA_NOME}}. Mais informações em www.deb-energia.com.br.</div>
+  <div class="t s6" style="left:17pt;top:619pt">A fatura pode ser emitida com base na leitura informada pelo cliente.</div>
+  <div class="t s6" style="left:17pt;top:624.5pt">Acréscimos legais serão aplicados sobre a COSIP paga em atraso, conforme Legislação Municipal.</div>
+  <div class="t s6" style="left:17pt;top:630pt">Esta Nota Fiscal faz parte do Doc. Pgto. nº {{DOC_PGTO}} da Conta Contrato Coletiva nº {{CONTA_CONTRATO_COLETIVA}}.</div>
+  <div class="t s6" style="left:17pt;top:636pt">A Iluminação Pública é de responsabilidade da Prefeitura.</div>
+
+  <!-- Faixa inferior (resumo) -->
+  <div class="box" style="left:14.2pt;top:677.6pt;width:99.1pt;height:31.2pt"></div>
+  <div class="box" style="left:113.4pt;top:677.6pt;width:467.7pt;height:31.2pt"></div>
+  <div class="box" style="left:113.4pt;top:677.6pt;width:170.1pt;height:14.2pt"></div>
+  <div class="box" style="left:283.4pt;top:677.6pt;width:113.4pt;height:14.2pt"></div>
+  <div class="box" style="left:396.8pt;top:677.6pt;width:184.3pt;height:14.2pt"></div>
+  <div class="t s13 b c" style="left:14.2pt;top:684.5pt;width:99.1pt">{{MES_REFERENCIA}}</div>
+  <div class="t s7" style="left:116.8pt;top:680.5pt">CÓDIGO DO CLIENTE</div>
+  <div class="t s9 b" style="left:192.4pt;top:679pt">{{CODIGO_CLIENTE}}</div>
+  <div class="t s7" style="left:286.8pt;top:680.5pt">VENCIMENTO</div>
+  <div class="t s9 b" style="left:336.8pt;top:679pt">{{VENCIMENTO}}</div>
+  <div class="t s7" style="left:400.2pt;top:680.5pt">TOTAL A PAGAR R$</div>
+  <div class="t s9 b" style="left:487.6pt;top:679pt">{{VALOR_TOTAL}}</div>
+  <div class="t s6" style="left:116.8pt;top:695.5pt">PARA CADASTRAR SUA CONTA EM DÉBITO AUTOMÁTICO, UTILIZE O CÓDIGO DO CLIENTE.</div>
+
+  <!-- Linha de corte -->
+  <div class="t s7" style="left:14.2pt;top:711.5pt">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</div>
+
+  <!-- Ficha de compensação (boleto) -->
+  <div class="t s6 b" style="left:65.2pt;top:721pt">{{BANCO}}</div>
+  <div class="t s4" style="left:286.3pt;top:722.5pt">PAGÁVEL EM QUALQUER REDE BANCÁRIA</div>
+  <div class="box" style="left:65.2pt;top:728.6pt;width:354.4pt;height:8.5pt"></div>
+  <div class="t s4" style="left:67.1pt;top:731pt">{{LINHA_DIGITAVEL}}</div>
+  <div class="box" style="left:65.2pt;top:737.1pt;width:354.4pt;height:19.9pt"></div>
+  <div class="t s4" style="left:67.1pt;top:739.5pt">PAGADOR | CPF/CNPJ | ENDEREÇO</div>
+  <div class="t s4" style="left:67.1pt;top:745.5pt">{{TITULAR}} {{CNPJ}}</div>
+  <div class="t s4" style="left:67.1pt;top:751pt">{{ENDERECO_LINHA1}} {{ENDERECO_LINHA2}} {{ENDERECO_LINHA3}} {{ENDERECO_LINHA4}}</div>
+  <div class="box" style="left:65.2pt;top:757pt;width:76.6pt;height:14.1pt"></div>
+  <div class="box" style="left:141.8pt;top:757pt;width:68pt;height:14.1pt"></div>
+  <div class="box" style="left:209.8pt;top:757pt;width:68pt;height:14.1pt"></div>
+  <div class="box" style="left:277.8pt;top:757pt;width:65.2pt;height:14.1pt"></div>
+  <div class="box" style="left:343pt;top:757pt;width:76.5pt;height:14.1pt"></div>
+  <div class="t s4" style="left:67.1pt;top:759.5pt">NOSSO NÚMERO</div>
+  <div class="t s4" style="left:67.1pt;top:765pt">{{NOSSO_NUMERO}}</div>
+  <div class="t s4" style="left:143.7pt;top:759.5pt">N° DO DOCUMENTO</div>
+  <div class="t s4" style="left:143.7pt;top:765pt">{{NUM_DOCUMENTO}}</div>
+  <div class="t s4" style="left:211.7pt;top:759.5pt">CÓDIGO DO CLIENTE</div>
+  <div class="t s4" style="left:211.7pt;top:765pt">{{CODIGO_CLIENTE}}</div>
+  <div class="t s4" style="left:279.7pt;top:759.5pt">DATA DE VENCIMENTO</div>
+  <div class="t s4" style="left:279.7pt;top:765pt">{{VENCIMENTO}}</div>
+  <div class="t s4" style="left:344.9pt;top:759.5pt">VALOR DO DOCUMENTO</div>
+  <div class="t s4" style="left:352.7pt;top:765pt">{{VALOR_TOTAL}}</div>
+  <div class="box" style="left:65.2pt;top:771.1pt;width:354.4pt;height:25.5pt"></div>
+  <div class="t s4" style="left:67.1pt;top:773.5pt">BENEFICIÁRIO</div>
+  <div class="t s4" style="left:67.1pt;top:779.5pt">COMPANHIA DE ELETRICIDADE DO ESTADO DA BAHIA.</div>
+  <div class="t s4" style="left:183.6pt;top:779.5pt">CNPJ 99.999.999/0001-91</div>
+  <div class="t s4" style="left:67.1pt;top:785pt">AV.EDGARD SANTOS, 300, CABULA VI, SALVADOR, BAHIA CEP 41181-900</div>
+  <div class="t s4" style="left:67.1pt;top:790.5pt">AGÊNCIA/CODIGO CEDENTE 0001/00001-</div>
+  <!-- Código de barras ilustrativo (padrão repetido, não escaneável) -->
+  <svg style="left:94pt;top:799.5pt" width="290.4pt" height="34pt" viewBox="0 0 290.4 34" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="bc" width="23.4" height="34" patternUnits="userSpaceOnUse">
+        <rect x="0" y="0" width="1" height="34"/><rect x="2.1" y="0" width="1.7" height="34"/><rect x="4.8" y="0" width="1" height="34"/>
+        <rect x="6.9" y="0" width="1" height="34"/><rect x="9.3" y="0" width="1.7" height="34"/><rect x="12.1" y="0" width="1" height="34"/>
+        <rect x="14.4" y="0" width="1.7" height="34"/><rect x="17" y="0" width="1" height="34"/><rect x="19.1" y="0" width="1" height="34"/><rect x="21.2" y="0" width="1.7" height="34"/>
+      </pattern>
+    </defs>
+    <rect x="0" y="0" width="290.4" height="34" fill="url(#bc)"/>
+  </svg>
+</div>
+
+<!-- ============================ PÁGINA 2 / 2 (medição — só alta tensão / grupo A) ============================ -->
+<!-- {{#MEDICAO}} -->
+<div class="page">
+
+  <div class="t s9 b" style="left:20pt;top:6pt">DISTRIBUIDORA DE ENERGIA</div>
+  <div class="t s9 b" style="left:20pt;top:18pt">BAHIA</div>
+  <div class="t s6 b" style="left:19.9pt;top:41pt">www.deb-energia.com.br|Ligue grátis 0800 116</div>
+  <div class="t s8 b" style="left:162.1pt;top:2.5pt">DANFE - DOCUMENTO AUXILIAR DA NOTA FISCAL DE ENERGIA ELÉTRICA ELETRÔNICA</div>
+  <div class="t s6" style="left:554.9pt;top:10pt">2 /2</div>
+  <div class="t s7" style="left:162.1pt;top:20pt">COMPANHIA DE ELETRICIDADE DO ESTADO DA BAHIA.</div>
+  <div class="t s7" style="left:162.1pt;top:28.5pt">AV.EDGARD SANTOS, 300, CABULA VI, SALVADOR, BAHIA CEP 41181-900</div>
+  <div class="t s7" style="left:162.1pt;top:37pt">CNPJ 15.139.629/0001-94 | INSCRIÇÃO ESTADUAL 00478696</div>
+  <div class="hr" style="left:14.2pt;top:70.9pt;width:566.9pt"></div>
+
+  <div class="t s5 b" style="left:17.5pt;top:74pt">NOME DO CLIENTE:</div>
+  <div class="cli" style="top:79.5pt">
+    <div class="n">{{TITULAR}}</div>
+    <div class="n">{{TITULAR_LINHA2}}</div>
+    <div class="cn">CNPJ: {{CNPJ}}</div>
+    <div class="lb">ENDEREÇO:</div>
+    <div class="e">{{ENDERECO_LINHA1}}</div>
+    <div class="e">{{ENDERECO_LINHA2}}</div>
+    <div class="e">{{ENDERECO_LINHA3}}</div>
+    <div class="e">{{ENDERECO_LINHA4}}</div>
+  </div>
+
+  <div class="box" style="left:212.6pt;top:76.7pt;width:79.4pt;height:25.4pt"></div>
+  <div class="t s4 c" style="left:212.6pt;top:82pt;width:79.4pt">CÓDIGO DA INSTALAÇÃO</div>
+  <div class="t s10 b c" style="left:212.6pt;top:88.5pt;width:79.4pt">{{CODIGO_INSTALACAO}}</div>
+  <div class="box" style="left:212.6pt;top:105pt;width:79.4pt;height:25.5pt"></div>
+  <div class="t s4 c" style="left:212.6pt;top:110.5pt;width:79.4pt">CÓDIGO DO CLIENTE</div>
+  <div class="t s10 b c" style="left:212.6pt;top:117pt;width:79.4pt">{{CODIGO_CLIENTE}}</div>
+
+  <div class="t s5" style="left:386pt;top:89.5pt">NOTA FISCAL N°</div>
+  <div class="t s6" style="left:428.9pt;top:89pt">{{NF_NUMERO}}</div>
+  <div class="t s5" style="left:462.4pt;top:89.5pt">- SÉRIE {{NF_SERIE}} / DATA DE EMISSÃO: {{NF_EMISSAO}}</div>
+  <div class="t s5" style="left:386pt;top:98pt">Consulte pela Chave de Acesso em:</div>
+  <div class="t s5" style="left:386pt;top:106.5pt">https://consulta-nf3e.deb-energia.com.br</div>
+  <div class="t s5" style="left:386pt;top:115pt">chave de acesso:</div>
+  <div class="t s5" style="left:386pt;top:123.5pt">{{NF_CHAVE}}</div>
+  <div class="t s5" style="left:386pt;top:132pt">Protocolo de autorização: {{NF_PROTOCOLO}} - {{NF_PROTOCOLO_DATAHORA}}</div>
+
+  <div class="box" style="left:14.2pt;top:136.1pt;width:70.8pt;height:19.9pt"></div>
+  <div class="box" style="left:85pt;top:136.1pt;width:124.8pt;height:19.9pt"></div>
+  <div class="box" style="left:209.8pt;top:136.1pt;width:82.2pt;height:19.9pt"></div>
+  <div class="t s6 c" style="left:14.2pt;top:137pt;width:70.8pt">REF:MÊS/ANO</div>
+  <div class="t s13 b c" style="left:14.2pt;top:143pt;width:70.8pt">{{MES_REFERENCIA}}</div>
+  <div class="t s6 c" style="left:85pt;top:137pt;width:124.8pt">TOTAL A PAGAR R$</div>
+  <div class="t s13 b" style="left:125.7pt;top:143pt">{{VALOR_TOTAL}}</div>
+  <div class="t s6 c" style="left:209.8pt;top:137pt;width:82.2pt">VENCIMENTO</div>
+  <div class="t s13 b c" style="left:209.8pt;top:143pt;width:82.2pt">{{VENCIMENTO}}</div>
+
+  <div class="box" style="left:14.2pt;top:158.8pt;width:340.1pt;height:14.2pt"></div>
+  <div class="t s6" style="left:15.5pt;top:159.5pt">CLASSIFICAÇÃO:</div>
+  <div class="t s6 b" style="left:68.5pt;top:159.5pt">{{SUBGRUPO}} {{MODALIDADE}}</div>
+  <div class="t s6 b" style="left:15.5pt;top:165.5pt">{{CLASSE}}</div>
+  <div class="box" style="left:368.5pt;top:158.8pt;width:212.6pt;height:14.2pt"></div>
+  <div class="t s6" style="left:371.8pt;top:162.5pt">TIPO DE FORNECIMENTO:</div>
+  <div class="t s6 b" style="left:451.1pt;top:162.5pt">{{TIPO_FORNECIMENTO}}</div>
+
+  <div class="box" style="left:14.2pt;top:175.9pt;width:113.4pt;height:14.1pt"></div>
+  <div class="box" style="left:127.6pt;top:175.9pt;width:113.4pt;height:14.1pt"></div>
+  <div class="box" style="left:241pt;top:175.9pt;width:113.4pt;height:14.1pt"></div>
+  <div class="box" style="left:354.4pt;top:175.9pt;width:113.4pt;height:14.1pt"></div>
+  <div class="box" style="left:467.7pt;top:175.9pt;width:113.4pt;height:14.1pt"></div>
+  <div class="t s6 c" style="left:14.2pt;top:179.5pt;width:113.4pt">DATAS DE LEITURAS</div>
+  <div class="t s8 c" style="left:127.6pt;top:178pt;width:113.4pt"><span class="s6">LEITURA ANTERIOR</span><span class="b" style="margin-left:3pt">{{LEITURA_ANTERIOR}}</span></div>
+  <div class="t s8 c" style="left:241pt;top:178pt;width:113.4pt"><span class="s6">LEITURA ATUAL</span><span class="b" style="margin-left:3pt">{{LEITURA_ATUAL}}</span></div>
+  <div class="t s8 c" style="left:354.4pt;top:178pt;width:113.4pt"><span class="s6">N° DE DIAS</span><span class="b" style="margin-left:5pt">{{NUM_DIAS}}</span></div>
+  <div class="t s8 c" style="left:467.7pt;top:178pt;width:113.4pt"><span class="s6">PRÓXIMA LEITURA</span><span class="b" style="margin-left:3pt">{{PROXIMA_LEITURA}}</span></div>
+
+  <!-- ===== Demonstrativo de consumo ===== -->
+  <div class="box" style="left:14.2pt;top:192.8pt;width:360pt;height:14.2pt"></div>
+  <div class="t s6 b c" style="left:14.2pt;top:196.5pt;width:360pt">DEMONSTRATIVO DE CONSUMO</div>
+  <div class="box" style="left:14.2pt;top:207pt;width:360pt;height:484.8pt"></div>
+  <div class="t s6" style="left:17pt;top:211pt">DESCRIÇÃO</div>
+  <div class="t s6 c" style="left:161.5pt;top:211pt;width:73pt">LEITURA</div>
+  <div class="t s6 r" style="left:161.5pt;top:219.5pt;width:23.7pt">DE</div>
+  <div class="t s6 r" style="left:204.1pt;top:219.5pt;width:18.7pt">ATÉ</div>
+  <div class="t s6 c" style="left:238pt;top:211pt;width:49pt">CONSTANTE</div>
+  <div class="t s6 c" style="left:287pt;top:211pt;width:35pt">AJUSTE</div>
+  <div class="t s6 c" style="left:322pt;top:211pt;width:47pt">CONSUMO/</div>
+  <div class="t s6 c" style="left:322pt;top:219.5pt;width:47pt">DEMANDA</div>
+  <div class="t s6" style="left:17pt;top:236.5pt">N° MEDIDOR - {{MEDIDOR}}</div>
+  <div class="t s6" style="left:17pt;top:245pt">CICLO - {{LEITURA_ANTERIOR}} a {{LEITURA_ATUAL}}</div>
+  <div class="t s6" style="left:17pt;top:253.5pt">DIAS - {{NUM_DIAS}}</div>
+  <table class="g s6" style="left:14.2pt;top:269.6pt;width:360pt">
+    <colgroup><col style="width:147.3pt"><col style="width:42.6pt"><col style="width:42.5pt"><col style="width:45.4pt"><col style="width:38.8pt"><col style="width:43.4pt"></colgroup>
+    <tbody>
+    <tr><td style="padding-left:2.8pt">Data</td><td class="r" style="padding-right:12.9pt">{{DATA_DE}}</td><td class="r" style="padding-right:17.9pt">{{DATA_ATE}}</td><td></td><td></td><td></td></tr>
+    <tr><td style="padding-left:2.8pt">Hora</td><td class="r" style="padding-right:12.9pt">235900</td><td class="r" style="padding-right:17.9pt">235900</td><td></td><td></td><td></td></tr>
+    <!-- {{#GRUPO_A}} -->
+    <tr><td style="padding-left:2.8pt">Consumo Ativo Na Ponta</td><td class="r" style="padding-right:14.4pt">{{LEIT_ANT_EA_P}}</td><td class="r" style="padding-right:17.8pt">{{LEIT_ATU_EA_P}}</td><td class="r" style="padding-right:22pt">{{CONST_EA_P}}</td><td class="r" style="padding-right:22.3pt">0,00</td><td class="r" style="padding-right:17.4pt">{{CONS_P_QTD}}</td></tr>
+    <tr><td style="padding-left:2.8pt">Consumo Ativo Fora de Ponta</td><td class="r" style="padding-right:14.4pt">{{LEIT_ANT_EA_FP}}</td><td class="r" style="padding-right:17.8pt">{{LEIT_ATU_EA_FP}}</td><td class="r" style="padding-right:22pt">{{CONST_EA_FP}}</td><td class="r" style="padding-right:22.3pt">0,00</td><td class="r" style="padding-right:17.4pt">{{CONS_FP_QTD}}</td></tr>
+    <tr><td style="padding-left:2.8pt">Demanda Máxima Na Ponta</td><td class="r" style="padding-right:14.4pt">0,00</td><td class="r" style="padding-right:17.8pt">{{LEIT_ATU_DEM_P}}</td><td class="r" style="padding-right:22pt">{{CONST_DEM}}</td><td class="r" style="padding-right:22.3pt">0,00</td><td class="r" style="padding-right:17.4pt">{{DEM_MED_P}}</td></tr>
+    <tr><td style="padding-left:2.8pt">Demanda Máxima Fora de Ponta</td><td class="r" style="padding-right:14.4pt">0,00</td><td class="r" style="padding-right:17.8pt">{{LEIT_ATU_DEM_FP}}</td><td class="r" style="padding-right:22pt">{{CONST_DEM}}</td><td class="r" style="padding-right:22.3pt">0,00</td><td class="r" style="padding-right:17.4pt">{{DEM_MED_FP}}</td></tr>
+    <tr><td style="padding-left:2.8pt">Consumo Reativo Na Ponta</td><td class="r" style="padding-right:14.4pt">{{LEIT_ANT_REAT_P}}</td><td class="r" style="padding-right:17.8pt">{{LEIT_ATU_REAT_P}}</td><td class="r" style="padding-right:22pt">{{CONST_EA_P}}</td><td class="r" style="padding-right:22.3pt">0,00</td><td class="r" style="padding-right:17.4pt">{{CONS_REAT_P_QTD}}</td></tr>
+    <tr><td style="padding-left:2.8pt">Consumo Reativo Fora de Ponta</td><td class="r" style="padding-right:14.4pt">{{LEIT_ANT_REAT_FP}}</td><td class="r" style="padding-right:17.8pt">{{LEIT_ATU_REAT_FP}}</td><td class="r" style="padding-right:22pt">{{CONST_EA_FP}}</td><td class="r" style="padding-right:22.3pt">0,00</td><td class="r" style="padding-right:17.4pt">{{CONS_REAT_FP_QTD}}</td></tr>
+    <tr><td style="padding-left:2.8pt">Consumo Reativo Excedente Na Ponta</td><td class="r" style="padding-right:14.4pt">{{LEIT_ANT_REATEXC_P}}</td><td class="r" style="padding-right:17.8pt">{{LEIT_ATU_REATEXC_P}}</td><td class="r" style="padding-right:22pt">{{CONST_EA_P}}</td><td class="r" style="padding-right:22.3pt">0,00</td><td class="r" style="padding-right:17.4pt">{{REAT_P_QTD}}</td></tr>
+    <tr><td style="padding-left:2.8pt">Consumo Reativo Excedente Fora de Ponta</td><td class="r" style="padding-right:14.4pt">{{LEIT_ANT_REATEXC_FP}}</td><td class="r" style="padding-right:17.8pt">{{LEIT_ATU_REATEXC_FP}}</td><td class="r" style="padding-right:22pt">{{CONST_EA_FP}}</td><td class="r" style="padding-right:22.3pt">0,00</td><td class="r" style="padding-right:17.4pt">{{REAT_FP_QTD}}</td></tr>
+    <tr><td style="padding-left:2.8pt">Demanda Máxima Corrigida Na Ponta</td><td class="r" style="padding-right:14.4pt">0,00</td><td class="r" style="padding-right:17.8pt">{{LEIT_ATU_DEMCORR_P}}</td><td class="r" style="padding-right:22pt">{{CONST_EA_P}}</td><td class="r" style="padding-right:22.3pt">0,00</td><td class="r" style="padding-right:17.4pt">{{DEMCORR_P}}</td></tr>
+    <tr><td style="padding-left:2.8pt">Demanda Máxima Corrigida Fora de Ponta</td><td class="r" style="padding-right:14.4pt">0,00</td><td class="r" style="padding-right:17.8pt">{{LEIT_ATU_DEMCORR_FP}}</td><td class="r" style="padding-right:22pt">{{CONST_EA_P}}</td><td class="r" style="padding-right:22.3pt">0,00</td><td class="r" style="padding-right:17.4pt">{{DEMCORR_FP}}</td></tr>
+    <!-- {{/GRUPO_A}} -->
+    <!-- {{#CONVENCIONAL}} -->
+    <tr><td style="padding-left:2.8pt">Consumo Ativo</td><td class="r" style="padding-right:14.4pt">{{LEIT_ANT_EA}}</td><td class="r" style="padding-right:17.8pt">{{LEIT_ATU_EA}}</td><td class="r" style="padding-right:22pt">{{CONST_EA}}</td><td class="r" style="padding-right:22.3pt">0,00</td><td class="r" style="padding-right:17.4pt">{{CONS_QTD}}</td></tr>
+    <!-- {{/CONVENCIONAL}} -->
+    </tbody>
+  </table>
+
+  <!-- ===== Gráficos ===== -->
+  <div class="box" style="left:377pt;top:192.8pt;width:204.1pt;height:14.2pt"></div>
+  <div class="t s6 b c" style="left:377pt;top:196.5pt;width:204.1pt">GRÁFICOS</div>
+  <div class="box" style="left:377pt;top:207pt;width:204.1pt;height:368.5pt"></div>
+  <div class="t s5 b c" style="left:377pt;top:208.5pt;width:204.1pt">Consumo Ativo Faturado (Ponta e Fora Ponta) em MWh</div>
+  <div class="t s4 c" style="left:376.7pt;top:223.5pt;width:14pt">150</div>
+  <div class="t s4 c" style="left:376.7pt;top:238pt;width:14pt">120</div>
+  <div class="t s4 c" style="left:376.7pt;top:252pt;width:14pt">90</div>
+  <div class="t s4 c" style="left:376.7pt;top:266pt;width:14pt">60</div>
+  <div class="t s4 c" style="left:376.7pt;top:280.5pt;width:14pt">30</div>
+  <div class="t s4 c" style="left:376.7pt;top:294.5pt;width:14pt">0</div>
+  <!-- barras ilustrativas (valores fixos, apenas visuais) -->
+  <svg style="left:377pt;top:207pt" width="204.1pt" height="110pt" viewBox="377 207 204.1 110" xmlns="http://www.w3.org/2000/svg">
+    <line x1="391.1" y1="224" x2="391.1" y2="294.9" stroke="#000" stroke-width="0.3"/>
+    <line x1="391.1" y1="294.9" x2="578" y2="294.9" stroke="#000" stroke-width="0.3"/>
+    <g fill="#ccc" stroke="#000" stroke-width="0.2">
+      <rect x="392.8" y="287.5" width="4.6" height="7.4"/><rect x="407" y="286.9" width="4.6" height="8"/><rect x="421.2" y="287.8" width="4.6" height="7.1"/>
+      <rect x="435.4" y="286.4" width="4.6" height="8.5"/><rect x="449.6" y="288.1" width="4.6" height="6.8"/><rect x="463.8" y="288.6" width="4.6" height="6.3"/>
+      <rect x="478" y="287.2" width="4.6" height="7.7"/><rect x="492.2" y="288.3" width="4.6" height="6.6"/><rect x="506.4" y="286.7" width="4.6" height="8.2"/>
+      <rect x="520.6" y="287.5" width="4.6" height="7.4"/><rect x="534.8" y="288" width="4.6" height="6.9"/><rect x="549" y="286.1" width="4.6" height="8.8"/><rect x="563.2" y="287.9" width="4.6" height="7"/>
+    </g>
+    <g fill="#fff" stroke="#000" stroke-width="0.3">
+      <rect x="399.1" y="249.1" width="4.5" height="45.8"/><rect x="413.3" y="242.7" width="4.5" height="52.2"/><rect x="427.4" y="243.9" width="4.5" height="51"/>
+      <rect x="441.7" y="242.7" width="4.5" height="52.2"/><rect x="455.8" y="246.1" width="4.5" height="48.8"/><rect x="470" y="245.7" width="4.5" height="49.2"/>
+      <rect x="484.1" y="244.4" width="4.5" height="50.5"/><rect x="498.3" y="246.4" width="4.5" height="48.5"/><rect x="512.5" y="236.2" width="4.5" height="58.7"/>
+      <rect x="526.6" y="230.4" width="4.5" height="64.5"/><rect x="540.8" y="230.9" width="4.5" height="64"/><rect x="555" y="229.2" width="4.5" height="65.7"/><rect x="569.2" y="236.6" width="4.5" height="58.3"/>
+    </g>
+    <rect x="425.2" y="309.1" width="17" height="5.7" fill="#ccc" stroke="#000" stroke-width="0.3"/>
+    <rect x="490.4" y="309.1" width="17" height="5.7" fill="#fff" stroke="#000" stroke-width="0.3"/>
+  </svg>
+  {{GRAF_MESES_CONSUMO}}
+  <div class="t s4" style="left:448.9pt;top:310pt">Ponta</div>
+  <div class="t s4" style="left:510.4pt;top:310pt">Fora Ponta</div>
+
+  <div class="t s5 b c" style="left:377pt;top:387.5pt;width:204.1pt">Demanda Medida em kW</div>
+  <div class="t s4 c" style="left:376.7pt;top:402pt;width:14pt">400</div>
+  <div class="t s4 c" style="left:376.7pt;top:416.5pt;width:14pt">320</div>
+  <div class="t s4 c" style="left:376.7pt;top:430.5pt;width:14pt">240</div>
+  <div class="t s4 c" style="left:376.7pt;top:444.5pt;width:14pt">160</div>
+  <div class="t s4 c" style="left:376.7pt;top:459pt;width:14pt">80</div>
+  <div class="t s4 c" style="left:376.7pt;top:473pt;width:14pt">0</div>
+  <svg style="left:377pt;top:396pt" width="204.1pt" height="80pt" viewBox="377 396 204.1 80" xmlns="http://www.w3.org/2000/svg">
+    <line x1="391.1" y1="402.6" x2="391.1" y2="473.4" stroke="#000" stroke-width="0.3"/>
+    <line x1="391.1" y1="473.4" x2="578" y2="473.4" stroke="#000" stroke-width="0.3"/>
+    <g fill="#ccc" stroke="#000" stroke-width="0.2">
+      <rect x="392.8" y="420" width="10.7" height="53.4"/><rect x="407" y="421.2" width="10.7" height="52.2"/><rect x="421.2" y="403.6" width="10.7" height="69.8"/>
+      <rect x="435.4" y="405.8" width="10.7" height="67.6"/><rect x="449.6" y="410.5" width="10.7" height="62.9"/><rect x="463.8" y="426.9" width="10.7" height="46.5"/>
+      <rect x="478" y="422.3" width="10.7" height="51.1"/><rect x="492.2" y="421.6" width="10.7" height="51.8"/><rect x="506.2" y="410.5" width="10.7" height="62.9"/>
+      <rect x="520.4" y="413.1" width="10.7" height="60.3"/><rect x="534.6" y="412.7" width="10.7" height="60.7"/><rect x="548.8" y="404.5" width="10.7" height="68.9"/><rect x="562.9" y="415.2" width="10.7" height="58.2"/>
+    </g>
+  </svg>
+  {{GRAF_MESES_DEMANDA}}
+
+  <!-- Dados complementares -->
+  <div class="box" style="left:377pt;top:578.3pt;width:204.1pt;height:14.2pt"></div>
+  <div class="t s6 b c" style="left:377pt;top:582pt;width:204.1pt">DADOS COMPLEMENTARES</div>
+  <div class="box" style="left:377pt;top:592.6pt;width:204.1pt;height:99.2pt"></div>
+  <!-- {{#GRUPO_A}} -->
+  <div class="t s6 b" style="left:379.9pt;top:599pt">Fator de Carga</div>
+  <div class="t s6" style="left:379.9pt;top:610.5pt">Na Ponta: {{FATOR_CARGA_P}}</div>
+  <div class="t s6" style="left:444.7pt;top:610.5pt">Fora de Ponta: {{FATOR_CARGA_FP}}</div>
+  <!-- {{/GRUPO_A}} -->
+
+  <!-- Canais de atendimento -->
+  <div class="box" style="left:14.2pt;top:694.6pt;width:566.9pt;height:141.8pt"></div>
+  <div class="t s12 b c" style="left:14.2pt;top:702pt;width:566.9pt">Fale com a gente! | Nossos Canais de Atendimento</div>
+  <div class="t s7 b c" style="left:14.2pt;top:714.5pt;width:566.9pt">TELEATENDIMENTO: Emergencial 0800 116 | Comercial 0800 000 8080</div>
+  <div class="t s7 c" style="left:14.2pt;top:723pt;width:566.9pt">(Ligação gratuita de telefones fixos e móveis)</div>
+  <div class="t s7 b c" style="left:14.2pt;top:731.5pt;width:566.9pt">Atendimento ao deficiente auditivo ou de fala: 0800 000 0155</div>
+  <div class="t s7 c" style="left:14.2pt;top:740pt;width:566.9pt">Ouvidoria: 0800 000 7676</div>
+  <div class="t s7 b c" style="left:14.2pt;top:762.5pt;width:566.9pt">Agência Reguladora de Energia - 0800 000 0167 (Ligação gratuita de telefones fixos e móveis)</div>
+  <div class="t s7 b c" style="left:14.2pt;top:782.5pt;width:566.9pt">Site de serviços: www.clientes.deb-energia.com.br</div>
+</div>
+<!-- {{/MEDICAO}} -->
+
+<!-- ============================ PÁGINA 3 (verso) ============================ -->
+<div class="page last">
+  <div class="box" style="left:283.4pt;top:14.2pt;width:147.5pt;height:178.7pt"></div>
+  <div class="t s8 b c" style="left:283.4pt;top:16.5pt;width:147.5pt">INFORMAÇÕES IMPORTANTES</div>
+  <div class="t s5" style="left:286.3pt;top:36pt">Todo Consumidor pode solicitar a apuração dos indicadores de</div>
+  <div class="t s5" style="left:286.3pt;top:44.5pt">continuidade e limites aplicáveis <b>(DIC, FIC, DMIC e DICRI).</b> As</div>
+  <div class="t s5" style="left:286.3pt;top:53pt">informações podem ser consultadas a qualquer tempo, basta</div>
+  <div class="t s5" style="left:286.3pt;top:61.5pt">acessar: <b>www.deb-energia.com.br -</b> Na Agência Virtual.</div>
+  <div class="t s5" style="left:286.3pt;top:78.5pt"><b>DIC</b> - NÚMERO DE HORAS SEM ENERGIA</div>
+  <div class="t s5" style="left:286.3pt;top:87pt"><b>FIC</b> - NÚMERO DE VEZES SEM ENERGIA</div>
+  <div class="t s5" style="left:286.3pt;top:95.5pt"><b>DMIC</b> - DURAÇÃO MÁXIMA DE INTERRUPÇÃO CONTÍNUA</div>
+  <div class="t s5" style="left:286.3pt;top:104pt"><b>DICRI</b> - DURAÇÃO DE INTERRUPÇÃO EM DIA CRÍTICO</div>
+
+  <div class="box" style="left:436.6pt;top:14.2pt;width:144.5pt;height:178.7pt"></div>
+  <div class="t s8 b c" style="left:436.6pt;top:16.5pt;width:144.5pt">INFORMAÇÕES IMPORTANTES</div>
+  <div class="t s5" style="left:439.4pt;top:36pt">O Cliente é compensado quando há violação na continuidade</div>
+  <div class="t s5" style="left:439.4pt;top:44.5pt">individual ou do nível de tensão de fornecimento.</div>
+  <div class="t s5" style="left:439.4pt;top:61.5pt">Pagamento em atraso gera multa 2%(Res.414), juros</div>
+  <div class="t s5" style="left:439.4pt;top:70pt">1% a.m (lei 10.438/02) e atualização monetária no próximo</div>
+  <div class="t s5" style="left:439.4pt;top:78.5pt">mês.</div>
+  <div class="t s5" style="left:439.4pt;top:95.5pt">O cliente é compensado quando há descumprimento do prazo</div>
+  <div class="t s5" style="left:439.4pt;top:104pt">definido para os padrões de atendimento comercial.</div>
+  <div class="t s5" style="left:439.4pt;top:121pt">Regras para cobrança da contribuição para custeio de serviço</div>
+  <div class="t s5" style="left:439.4pt;top:129.5pt">de iluminação pública(COSIP) estão à disposição site</div>
+  <div class="t s5" style="left:439.4pt;top:138pt">www.deb-energia.com.br/Poder Público /Contribuição de</div>
+  <div class="t s5" style="left:439.4pt;top:146.5pt">Iluminação Pública.</div>
+  <div class="t s5" style="left:439.4pt;top:163.5pt">As informações suplementares estão disponíveis no site</div>
+  <div class="t s5" style="left:439.4pt;top:172pt">www.deb-energia.com.br - Na Agência Virtual, ou nas lojas</div>
+  <div class="t s5" style="left:439.4pt;top:180.5pt">de atendimento.</div>
+
+  <div class="box" style="left:283.4pt;top:198.5pt;width:297.7pt;height:22.7pt"></div>
+  <div class="t s5" style="left:286.3pt;top:203pt">As condições gerais de fornecimento (Resolução 414/2010), tarifas, produtos, serviços prestados e tributos se encontram</div>
+  <div class="t s5" style="left:286.3pt;top:211.5pt">à disposição, para consulta em nossas unidades de atendimento e no site <b>www.deb-energia.com.br</b></div>
+
+  <div class="box" style="left:99.2pt;top:226.9pt;width:368.5pt;height:28.3pt"></div>
+  <div class="t s8 b c" style="left:99.2pt;top:237.5pt;width:368.5pt">ACESSE WWW.DEB-ENERGIA.COM.BR E CONFIRA NOSSO AVISO DE PRIVACIDADE.</div>
+
+  <div class="t s9 b" style="left:14pt;top:286pt">DISTRIBUIDORA DE ENERGIA</div>
+  <div class="t s9 b" style="left:14pt;top:298pt">BAHIA</div>
+  <div class="t s8 b" style="left:17.5pt;top:323pt">DANFE - DOCUMENTO AUXILIAR DA NOTA</div>
+  <div class="t s8 b" style="left:17.5pt;top:331.5pt">FISCAL DE ENERGIA ELÉTRICA ELETRÔNICA</div>
+
+  <div class="t s5 b" style="left:17.5pt;top:386pt">NOME DO CLIENTE:</div>
+  <div class="cli" style="top:391.5pt">
+    <div class="n">{{TITULAR}}</div>
+    <div class="n">{{TITULAR_LINHA2}}</div>
+    <div class="lb" style="line-height:9pt">ENDEREÇO:</div>
+    <div class="e">{{ENDERECO_LINHA1}}</div>
+    <div class="e">{{ENDERECO_LINHA2}}</div>
+    <div class="e">{{ENDERECO_LINHA3}}</div>
+    <div class="e">{{ENDERECO_LINHA4}}</div>
+  </div>
+</div>
+
+</body>
+</html>
