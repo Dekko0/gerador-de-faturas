@@ -312,12 +312,11 @@ def main():
 
     with st.expander("Como funciona / colunas descartadas"):
         st.markdown(f"""
-    1. Importe o relatório `.xlsx` exportado pelo sistema de leitura de faturas.
+    1. Importe o relatório `.xlsx` exportado pelo sistema de leitura de faturas Poupenergia.
     2. As colunas de dados do sistema (**{", ".join(sorted(COLUNAS_IGNORADAS, key=lambda c: (len(c), c)))}**)
        são descartadas automaticamente — apenas os dados da fatura são usados.
     3. Cada linha preenchida vira uma fatura fictícia (Convencional, Verde ou Azul,
-       conforme a classe). Valores são recalculados a partir de consumos, demandas e
-       tarifas da própria linha, mantendo a fatura internamente coerente.
+       conforme a classe).
     4. Ao final, baixe o **ZIP com todos os PDFs**.
 
     Limite: **{MAX_FATURAS} faturas por importação**.
