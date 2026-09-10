@@ -305,7 +305,7 @@ def gerar_uma(template, cfg, cen, navegador, pasta):
 # ----------------------------------------------------------------- interface
 
 def main():
-    st.set_page_config(page_title="Gerador de Faturas Fictícias", page_icon="🧾", layout="wide")
+    st.set_page_config(page_title="Gerador de Faturas Fictícias", page_icon="", layout="wide")
     st.title("Gerador de Faturas Fictícias")
     st.caption("Importe o relatório de faturas (.xlsx) do sistema — cada linha vira uma fatura "
                "fictícia em PDF (layout DANFE NF3e), entregues juntas em um ZIP.")
