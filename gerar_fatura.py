@@ -77,6 +77,11 @@ def chave_acesso(emissao, nf_numero, codigo_numerico):
     return " ".join(chave[i:i + 4] for i in range(0, 44, 4))
 
 
+def medidor_ficticio(seq):
+    """Nº de medidor fictício de 10 dígitos, um por fatura: 1 -> '9900000001'."""
+    return f"99{int(seq) % 10**8:08d}"
+
+
 def fator_vencimento(venc):
     """Fator de vencimento do boleto (base 22/02/2025 = 1000, após o reinício da contagem)."""
     return 1000 + (venc - date(2025, 2, 22)).days
@@ -275,6 +280,9 @@ def montar_contexto(cfg, cen):
     else:
         nf = 990000001 + cfg["cenarios"].index(cen)
     ctx["NF_NUMERO"] = str(nf)
+    # nº do medidor: um diferente por fatura, salvo se o cenário fixar o seu em "fixos"
+    if "MEDIDOR" not in cen.get("fixos", {}):
+        ctx["MEDIDOR"] = medidor_ficticio(cfg["cenarios"].index(cen) + 1)
     ctx["NF_CHAVE"] = chave_acesso(emissao, nf, cen.get("codigo_numerico", 1352197 + nf % 1000))
     ctx["NF_PROTOCOLO"] = f"3292600{nf:09d}"
     ctx["NF_PROTOCOLO_DATAHORA"] = f"{dmy(emissao)} às 23:49:05"

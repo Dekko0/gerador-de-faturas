@@ -152,8 +152,8 @@ def linha_para_cenario(linha, cfg, seq):
     nf = re.sub(r"\D", "", str(linha.get("numero_nota_fiscal") or ""))
     cen["nf_numero"] = int(nf) if nf else 990000000 + seq
 
-    # dados do titular / instalação que vêm da planilha
-    fixos = {}
+    # dados do titular / instalação que vêm da planilha; o medidor é um por fatura
+    fixos = {"MEDIDOR": gf.medidor_ficticio(seq)}
     if linha.get("codigo_instalacao_uc") or linha.get("codigo_instalacao"):
         fixos["CODIGO_INSTALACAO"] = str(linha.get("codigo_instalacao_uc") or linha.get("codigo_instalacao"))
     if linha.get("codigo_do_cliente_uc") or linha.get("codigo_cliente"):
@@ -165,8 +165,7 @@ def linha_para_cenario(linha, cfg, seq):
     descricao = str(linha.get("descricao_classe") or "").strip()
     if descricao:
         fixos["CLASSE"] = re.sub(r"^(B\d+|A\d+(\s+Horo-sazonal)?(\s+\w+)?)\s+", "", descricao)
-    if fixos:
-        cen["fixos"] = fixos
+    cen["fixos"] = fixos
 
     # tarifas da planilha (com tributos) -> tarifas sem tributos do gerador
     ref_a, ref_b = cfg["tarifas"]["grupo_a"], cfg["tarifas"]["grupo_b"]
