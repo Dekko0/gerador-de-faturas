@@ -73,14 +73,14 @@ consumo, PIS/COFINS). Titular, CNPJ, endereço, `INST01` e `TESTE-0001` ficam em
 
 | Grupo | Placeholders |
 | --- | --- |
-| Identificação (fixos) | `TITULAR`, `TITULAR_LINHA2`, `CNPJ`, `ENDERECO_LINHA1..4`, `CODIGO_INSTALACAO`, `CODIGO_CLIENTE`, `CLASSE`, `TIPO_FORNECIMENTO`, `MEDIDOR`, `CONTA_CONTRATO_COLETIVA`, `BANCO` |
+| Identificação (fixos) | `TITULAR`, `TITULAR_LINHA2`, `CNPJ`, `ENDERECO_LINHA1..4`, `CODIGO_INSTALACAO`, `CODIGO_CLIENTE`, `CLASSE`, `TIPO_FORNECIMENTO`, `CONTA_CONTRATO_COLETIVA`, `BANCO` |
 | Contrato (variam) | `SUBGRUPO` + `MODALIDADE` (ex.: "A4 Horo-sazonal" + "Verde", "B3" + "Convencional"), `DEMANDA_KW` (Verde), `DEMANDA_PONTA_KW` / `DEMANDA_FORA_PONTA_KW` (Azul) |
 | Ciclo | `MES_REFERENCIA`, `VENCIMENTO`, `VALOR_TOTAL`, `LEITURA_ANTERIOR`, `LEITURA_ATUAL`, `NUM_DIAS`, `PROXIMA_LEITURA`, `DATA_DE`, `DATA_ATE` |
 | NF3e | `NF_NUMERO`, `NF_SERIE`, `NF_EMISSAO`, `NF_CHAVE`, `NF_PROTOCOLO`, `NF_PROTOCOLO_DATAHORA`, `DOC_PGTO` |
 | Itens grupo A | `DEM_*` (Verde), `DEM_P_*` / `DEM_FP_*` (Azul), `TUSD_P_*`, `TUSD_FP_*`, `TE_P_*`, `TE_FP_*`, `REAT_P_*`, `REAT_FP_*`, `CONS_P_QTD`, `CONS_FP_QTD`, `IRRF_12`, `IRRF_48` — sufixos `_QTD`, `_PRECO`, `_VALOR`, `_PISCOF`, `_TARIFA` |
 | Itens grupo B | `CONS_QTD`, `TUSD_*`, `TE_*`, `IRRF_12` |
 | Tributos | `BASE_PISCOF`, `ALIQ_PIS`, `VALOR_PIS`, `ALIQ_COFINS`, `VALOR_COFINS`, `BASE_ICMS`, `ALIQ_ICMS`, `VALOR_ICMS`, `BANDEIRA`, `BANDEIRA_NOME` |
-| Medidor / página 2 | `LEIT_ANT_*`, `LEIT_ATU_*`, `CONST_*`, `DEM_MED_P/FP`, `DEMCORR_P/FP`, `CONS_REAT_*`, `FATOR_CARGA_P/FP`, `GRAF_MESES_CONSUMO/DEMANDA` (HTML gerado pelo script) |
+| Medidor / página 2 | `MEDIDOR` (um por fatura: 9900000001, 9900000002…; fixe um em `fixos` do cenário se precisar), `LEIT_ANT_*`, `LEIT_ATU_*`, `CONST_*`, `DEM_MED_P/FP`, `DEMCORR_P/FP`, `CONS_REAT_*`, `FATOR_CARGA_P/FP`, `GRAF_MESES_CONSUMO/DEMANDA` (HTML gerado pelo script) |
 | Boleto | `LINHA_DIGITAVEL`, `NOSSO_NUMERO`, `NUM_DOCUMENTO` |
 
 ## Cenários em `cenarios.json`
